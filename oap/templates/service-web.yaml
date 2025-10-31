@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "oap.fullname" . }}-web
+  labels:
+    app: {{ include "oap.name" . }}-web
+spec:
+  selector:
+    app: {{ include "oap.name" . }}-web
+  ports:
+    - port: {{ .Values.web.containerPort }}
+      targetPort: {{ .Values.web.containerPort }}
+  type: ClusterIP

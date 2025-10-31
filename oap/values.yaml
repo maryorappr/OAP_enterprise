@@ -1,0 +1,50 @@
+web:
+  image:
+    # In prod you should push a built image to a registry and reference it here.
+    # For now just put a placeholder tag you'll eventually build/push.
+    repository: my-registry/web
+    tag: latest
+  replicas: 1
+  containerPort: 3000
+  env:
+    # this came from apps/web/.env in compose – put important ones here
+    # example:
+    NEXT_PUBLIC_RAG_API_URL: "http://api:8080"
+
+toolAgent:
+  image:
+    repository: my-registry/tool-agent
+    tag: latest
+  replicas: 1
+  containerPort: 2024
+  envFromEnvFile: true   # we'll wire this soon
+  env: {}
+  # if tool-agent also reads secrets (API keys, etc.) they will become K8s Secrets
+
+postgres:
+  image:
+    repository: pgvector/pgvector
+    tag: pg16
+  replicas: 1
+  containerPort: 5432
+  env:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: postgres
+  storage:
+    size: 10Gi   # this replaces the docker volume postgres_data
+
+api:
+  image:
+    repository: my-registry/langconnect-api
+    tag: latest
+  replicas: 1
+  containerPort: 8080
+  env:
+    # from compose env_file + environment:
+    POSTGRES_HOST: "postgres"
+    POSTGRES_PORT: "5432"
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "postgres"
+    POSTGRES_DB: "postgres"
+  extraEnvFromFile: true

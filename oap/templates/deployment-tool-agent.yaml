@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oap.fullname" . }}-tool-agent
+  labels:
+    app: {{ include "oap.name" . }}-tool-agent
+spec:
+  replicas: {{ .Values.toolAgent.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "oap.name" . }}-tool-agent
+  template:
+    metadata:
+      labels:
+        app: {{ include "oap.name" . }}-tool-agent
+    spec:
+      containers:
+        - name: tool-agent
+          image: "{{ .Values.toolAgent.image.repository }}:{{ .Values.toolAgent.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.toolAgent.containerPort }}
+          env:
+            {{- range $key, $val := .Values.toolAgent.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          # TODO: if you want to slurp an .env file into this pod:
+          # we'll introduce a Secret/ConfigMap template later that mounts it
